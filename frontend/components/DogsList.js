@@ -1,34 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function DogsList({dogs, setDogs, setCurrentDog}) {
-
+export default function DogsList({ dogs, getDogs, setCurrentDog }) {
   const navigate = useNavigate();
 
   useEffect(() => {
     getDogs();
-    setCurrentDog()
+    setCurrentDog();
   }, []);
 
-  async function getDogs() {
-    fetch("http://localhost:3003/api/dogs")
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`Ouch, status ${res.status}`);
-        }
-        const contentType = res.headers.get("Content-Type");
-        if (contentType.includes("application/json")) {
-          return res.json(); // res.json returns a promise
-        }
-      })
-      .then((data) => setDogs(data))
-      .catch((err) => {
-        console.log("Something went wrong GETing dogs...", err);
-      });
-  }
-
   const clickHandler_edit = (dog) => {
-    setCurrentDog(dog)
+    setCurrentDog(dog);
     navigate("/form");
   };
 

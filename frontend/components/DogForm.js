@@ -1,61 +1,63 @@
-import React, { useState, useEffect } from 'react'
-// import { useNavigate } from 'react-router-dom'
+import React, { useState, useEffect } from "react";
 
-const initialForm = { name: '', breed: '', adopted: false }
+const initialForm = { name: "", breed: "", adopted: false };
 
 // Use this form for both POST and PUT requests!
-export default function DogForm({currentDog}) {
-  const [values, setValues] = useState(initialForm)
-  const [breedOptions, setBreedOptions]=useState(['---Select Breed---'])
+export default function DogForm({
+  breedOptions,
+  currentDog,
+  setCurrentDog,
+  updateDog,
+  addDog,
+}) {
+  const [values, setValues] = useState(initialForm);
+  useEffect(() => {
+    // if(currentDog) setValues(currentDog)
+    currentDog ? setValues(currentDog) : setValues(initialForm);
+  }, []);
 
+  const onReset = (evt) => {
+    evt.preventDefault();
+    setCurrentDog();
+    setValues(initialForm);
+  };
 
-  useEffect(()=>{
-    currentDog ? setValues(currentDog) : setValues(initialForm)
-  },[])
+  const onSubmit = (evt) => {
+    evt.preventDefault();
 
-  useEffect(()=>{
-    async function getBreedOptions(){
-      fetch('http://localhost:3003/api/dogs/breeds')
-        .then(res=>{
-          if(!res.ok) throw new Error("Couldn't fetch dog breeds...")
-
-          const contentType = res.headers.get("Content-Type");
-          if (contentType.includes('application/json')) {
-            console.log('Fetching Dog Breeds...')
-            return res.json()
-          }
-        })
-        .then(data=>{
-          setBreedOptions(['---Select Breed---', ...data])
-        })
-        .catch(err=>{
-          console.error("Couldn't fetch dog breeds...", err)
-        })
+    console.log("running the submission check");
+    if (currentDog) {
+      const newDog = {
+        id: currentDog.id,
+        name: values.name,
+        breed: values.breed,
+        adopted: values.adopted,
+      };
+      updateDog(newDog);
+      console.log("Edited");
+    } else {
+      const newDog = {
+        name: values.name,
+        breed: values.breed,
+        adopted: values.adopted,
+      };
+      addDog(newDog);
+      console.log("Submitted");
     }
-    getBreedOptions()
-  },[])
-
-
-
-  const onSubmit = (event) => {
-    event.preventDefault()
-
-    
-  }
+  };
 
   const onChange = (event) => {
-    const { name, value, type, checked } = event.target
+    const { name, value, type, checked } = event.target;
     setValues({
-      ...values, [name]: type === 'checkbox' ? checked : value
-    })
-  }
+      ...values,
+      [name]: type === "checkbox" ? checked : value,
+    });
+  };
 
   return (
     <div>
-      <h2>
-        Create Dog
-      </h2>
-      <form onSubmit={onSubmit}>
+      <h2>{currentDog ? "Update Dog" : "Create Dog"}</h2>
+      <form>
         <input
           name="name"
           value={values.name}
@@ -69,12 +71,13 @@ export default function DogForm({currentDog}) {
           onChange={onChange}
           aria-label="Dog's breed"
         >
-          {breedOptions.map(val=>{
-            return <option key={val}>{val}</option>
+          {breedOptions.map((val) => {
+            return <option key={val}>{val}</option>;
           })}
         </select>
         <label>
-          Adopted: <input
+          Adopted:{" "}
+          <input
             type="checkbox"
             name="adopted"
             checked={values.adopted}
@@ -83,12 +86,14 @@ export default function DogForm({currentDog}) {
           />
         </label>
         <div>
-          <button type="submit">
-            Create Dog
+          <button onClick={onSubmit} type="submit">
+            {currentDog ? "Update Dog" : "Create Dog"}
           </button>
-          <button aria-label="Reset form">Reset</button>
+          <button aria-label="Reset form" onClick={onReset}>
+            Reset
+          </button>
         </div>
       </form>
     </div>
-  )
+  );
 }
