@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react'
+// import { useNavigate } from 'react-router-dom'
 
 const initialForm = { name: '', breed: '', adopted: false }
 
 // Use this form for both POST and PUT requests!
-export default function DogForm() {
+export default function DogForm({currentDog}) {
   const [values, setValues] = useState(initialForm)
   const [breedOptions, setBreedOptions]=useState(['---Select Breed---'])
 
+
+  useEffect(()=>{
+    currentDog ? setValues(currentDog) : setValues(initialForm)
+  },[])
 
   useEffect(()=>{
     async function getBreedOptions(){
@@ -65,7 +70,7 @@ export default function DogForm() {
           aria-label="Dog's breed"
         >
           {breedOptions.map(val=>{
-            return <option>{val}</option>
+            return <option key={val}>{val}</option>
           })}
         </select>
         <label>
